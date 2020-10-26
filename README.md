@@ -1,2 +1,2 @@
 # maze-constructor
- Generated and solves an ASCII maze.
+Generates and solves an ASCII maze.
