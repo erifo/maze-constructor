@@ -9,11 +9,13 @@ class Cell():
 
     def initWalls(self):
         walls = {}
-        directions = [0, 1]
+        directions = [-1, 0, 1]
         for yMod in directions:
             walls[yMod] = {}
             for xMod in directions:
-                if (yMod == 0 and xMod == 0):
+                if (yMod == 0 and xMod == 0): #This is not a direction away from cell.
+                    continue
+                if (yMod != 0 and xMod != 0): #Diagonals are not valid directions.
                     continue
                 walls[yMod][xMod] = True
         return walls
@@ -89,11 +91,10 @@ class Maze():
         for y in range(self.HEIGHT):
             payload += '║'
             for x in range(self.WIDTH):
-                cell = self.getCellAt(y, x)
-                if (cell.isWall):
-                    payload += '#'
-                else:
-                    payload += ' '
-            payload += '║\n'
+                #cell = self.getCellAt(y, x)
+                payload += ' #'
+            payload += ' ║\n'
+            if (y%2 == 0):
+                payload += '║' + '#'*self.WIDTH + '║\n'
         payload += '╚' + '═'*self.WIDTH + '╝'
         print(payload)
