@@ -55,6 +55,7 @@ class Maze():
     def linkCell(self, y, x):
         #Finding valid cell to link to.
         cell = self.getCellAt(y, x)
+        cell.isVisited = True
         directions = [(-1,0), (0,1), (1,0), (0,-1)]
         candidateCells = []
         for d in directions:
@@ -64,6 +65,9 @@ class Maze():
             cell = self.getCellAt(y+d[0], x+d[1])
             #Ignore if candidate already links back into ours.
             if (not cell.isWallAtMod(d[0]*-1, d[1]*-1)):   
+                continue
+            #Don't revisit cells when linking.
+            if (cell.isVisited):
                 continue
             candidateCells.append(cell)
         
@@ -76,7 +80,6 @@ class Maze():
         cell.razeWallAtMod(nextCell.y-y, nextCell.x-x)
         nextCell.razeWallAtMod((nextCell.y-y)*-1, (nextCell.x-x)*-1)
         self.linkCell(nextCell.y, nextCell.x)
-         
 
         #Restarting process for next cell.
         self.linkCell(nextCell.y, nextCell.x)
@@ -88,13 +91,13 @@ class Maze():
 
     def printMaze(self):
         payload = '╔' + '═'*self.WIDTH + '╗\n'
-        for y in range(self.HEIGHT):
+        for y in range(self.HEIGHT*2):
             payload += '║'
             for x in range(self.WIDTH):
                 #cell = self.getCellAt(y, x)
                 payload += ' #'
             payload += ' ║\n'
             if (y%2 == 0):
-                payload += '║' + '#'*self.WIDTH + '║\n'
+                payload += '║' + '#'*self.WIDTH*2 + '║\n'
         payload += '╚' + '═'*self.WIDTH + '╝'
         print(payload)
