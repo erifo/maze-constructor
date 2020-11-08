@@ -6,6 +6,7 @@ class Cell():
         self.x = x
         self.isVisited = False
         self.walls = self.initWalls()
+        self.visitorID = 0
 
     def initWalls(self):
         walls = {}
@@ -24,7 +25,10 @@ class Cell():
         return self.walls[y][x]
     
     def razeWallAtMod(self, y, x):
-        self.walls[y][x] = False
+        if (self.walls[y][x] == False):
+            print("ERROR: Wall", y, x, "in cell", self.y, x, "already razed!")
+        else:
+            self.walls[y][x] = False
 
 class Maze():
     def __init__(self, height, width):
@@ -32,6 +36,7 @@ class Maze():
         self.WIDTH = width
         self.cells = self.initCells()
         self.linkMaze()
+        self.debugTracer = 0
     
     def initCells(self):
         cells = []
@@ -51,40 +56,47 @@ class Maze():
             if (cell.y == y and cell.x == x):
                 return cell
         print("ERROR: Cell", y, x, "not found!")
+    
+    def getNeighbourCells(self, cell):
+        payload = []
+        directions = [(-1,0), (0,1), (1,0), (0,-1)]
+        for d in directions:
+            #Ensure that there is a cell at coordinates.
+            if (not self.isCellAt(cell.y+d[0], cell.x+d[1])):
+                continue
+            c2 = self.getCellAt(cell.y+d[0], cell.x+d[1])
+            payload.append(c2)
+
+        return payload
 
     def linkCell(self, y, x):
         #Finding valid cell to link to.
-        cell = self.getCellAt(y, x)
-        cell.isVisited = True
-        directions = [(-1,0), (0,1), (1,0), (0,-1)]
-        candidateCells = []
-        for d in directions:
-            #Ensure that there is a cell at coordinates.
-            if (not self.isCellAt(y+d[0], x+d[1])):
-                continue
-            cell = self.getCellAt(y+d[0], x+d[1])
-            #Ignore if candidate already links back into ours.
-            if (not cell.isWallAtMod(d[0]*-1, d[1]*-1)):   
-                continue
-            #Don't revisit cells when linking.
-            if (cell.isVisited):
-                continue
-            candidateCells.append(cell)
+        currentCell = self.getCellAt(y, x)
+        currentCell.isVisited = True
+        candidateCells = self.getNeighbourCells(currentCell)
+
+        #Disqualify already visited.
+        candidateCells = [cell for cell in candidateCells if not cell.isVisited]
         
-        #End here if no more carvable cells are found.
+        #End here if no more linkable cells are found.
         if (len(candidateCells) == 0):
             return
 
         #Link this cell to the found one.
         nextCell = choice(candidateCells)
-        cell.razeWallAtMod(nextCell.y-y, nextCell.x-x)
+        currentCell.razeWallAtMod(nextCell.y-y, nextCell.x-x)
         nextCell.razeWallAtMod((nextCell.y-y)*-1, (nextCell.x-x)*-1)
         self.linkCell(nextCell.y, nextCell.x)
+
+        #Marking the cell with number indicating when it was visited.
+        currentCell.visitorID = self.debugTracer * (255 // (self.WIDTH*self.HEIGHT))
+        self.debugTracer += 1
 
         #Restarting process for next cell.
         self.linkCell(nextCell.y, nextCell.x)
 
     def linkMaze(self):
+        self.debugTracer = 0
         startY = randint(0, self.HEIGHT-1)
         startX = randint(0, self.WIDTH-1)
         self.linkCell(startY, startX)

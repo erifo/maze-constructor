@@ -8,7 +8,8 @@ def drawCell(cell, screen):
     x = cell.x * cellSize
     height =  cellSize
     width = cellSize
-    color = (100,(cell.y*cell.x*cellSize)%255,100)
+    color = (0, cell.visitorID, 0)
+    #color = (100,(cell.y*cell.x*cellSize)%255,100)
     pygame.draw.rect(screen, color, [x, y, width, height])
 
 def drawWalls(cell, screen):
@@ -31,15 +32,10 @@ def drawWalls(cell, screen):
 
 
 def drawMaze(maze):
-    pygame.init()
-
-    screenSize = width, height = maze.WIDTH*cellSize, maze.HEIGHT*cellSize
-    screen = pygame.display.set_mode(screenSize)
-    
-    while (True):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
+        #Setup
+        screenSize = width, height = maze.WIDTH*cellSize, maze.HEIGHT*cellSize
+        screen = pygame.display.set_mode(screenSize)
+        
         #Draw Background
         black = (0,0,0)
         screen.fill(black)
@@ -55,11 +51,23 @@ def drawMaze(maze):
         #Display drawing
         pygame.display.flip()
 
-
 def main():
-    m = Maze(15, 15)
+    pygame.init()
+
+    size = 5
+
+    m = Maze(size, size)
     drawMaze(m)
+
+    while (True):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
     
+        if pygame.mouse.get_pressed()[0]:
+            m = Maze(size, size)
+            drawMaze(m)
+        
 
 if __name__ == "__main__":
     main()
