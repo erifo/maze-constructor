@@ -1,9 +1,10 @@
 # maze-constructor
-Generates and solves an ASCII maze.
+Generates and solves a maze.
 
-Currently ~~undergoing sporadic redesign~~ is a dumpster fire.
+### Todo
+* Change from recursive generation to iterative to avoid hitting max recursion depth.
 
-# Specifications
+### Specifications
 * The maze should consist of cells in a square grid of any width or length.
 * Every cell of the maze should be traversable.
 * Every cell should know which of its four walls are active.
