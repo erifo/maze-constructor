@@ -2,6 +2,7 @@
 Generates and solves a maze.
 
 ### Todo
+* Implement step-by-step generation display.
 * Implement iterative maze solver and display.
 * Implement Eller's Algorithm for faster maze generation.
 
