@@ -2,7 +2,8 @@
 Generates and solves a maze.
 
 ### Todo
-* Change from recursive generation to iterative to avoid hitting max recursion depth.
+* Implement iterative maze solver and display.
+* Implement Eller's Algorithm for faster maze generation.
 
 ### Specifications
 * The maze should consist of cells in a square grid of any width or length.
