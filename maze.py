@@ -1,4 +1,4 @@
-from random import randint, choice
+from random import randint, choice, shuffle
 
 class Cell():
     def __init__(self, y, x):
@@ -6,7 +6,7 @@ class Cell():
         self.x = x
         self.isVisited = False
         self.walls = self.initWalls()
-        self.visitorID = 0
+        self.genID = 0
 
     def initWalls(self):
         walls = [(-1,0), (0,1), (1,0), (0,-1)]
@@ -27,8 +27,8 @@ class Maze():
         self.HEIGHT = height
         self.WIDTH = width
         self.cells = self.initCells()
+        self.generationTracer = 1
         self.linkMaze()
-        self.debugTracer = 0
     
     def initCells(self):
         cells = []
@@ -60,32 +60,27 @@ class Maze():
             payload.append(c2)
         return payload
 
-    def linkCell(self, y, x):
-        #Finding valid cell to link to.
-        currentCell = self.getCellAt(y, x)
-        currentCell.isVisited = True
-        candidateCells = self.getNeighbourCells(currentCell)
-
-        #Disqualify already visited.
-        candidateCells = [cell for cell in candidateCells if not cell.isVisited]
-        
-        #End here if no more linkable cells are found.
-        if (len(candidateCells) == 0):
-            return
-
-        #Link this cell to the found one by razing inbetween walls.
-        nextCell = choice(candidateCells)
-        currentCell.razeWallAtMod(nextCell.y-y, nextCell.x-x)
-        nextCell.razeWallAtMod((nextCell.y-y)*-1, (nextCell.x-x)*-1)
-
-        #Marking the cell with number indicating when it was visited.
-        currentCell.visitorID = self.debugTracer * max(1,(255 // (self.WIDTH*self.HEIGHT)))
-        self.debugTracer += 1
-
-        #Restarting process for next cell, twice.
-        #This will cause depth-first branching paths to generate.
-        self.linkCell(nextCell.y, nextCell.x)
-        self.linkCell(nextCell.y, nextCell.x)
+    def linkCells(self, startY, startX):
+        stack = []
+        stack.append(self.getCellAt(startY, startX))
+        while (len(stack) > 0):
+            currentCell = stack.pop()
+            currentCell.isVisited = True
+            neighbourCells = self.getNeighbourCells(currentCell)
+            candidateCells = [cell for cell in neighbourCells if not cell.isVisited]
+            #---
+            currentCell.genID = self.generationTracer
+            self.generationTracer += 1
+            #---
+            if (len(candidateCells) == 0):
+                continue
+            #---
+            stack.append(currentCell)
+            nextCell = choice(candidateCells)
+            currentCell.razeWallAtMod(nextCell.y - currentCell.y, nextCell.x - currentCell.x)
+            nextCell.razeWallAtMod((nextCell.y - currentCell.y)*-1, (nextCell.x - currentCell.x)*-1)
+            nextCell.isVisited = True
+            stack.append(nextCell)
 
     def createOpenings(self):
         #Top
@@ -99,10 +94,10 @@ class Maze():
         cell = self.getCellAt(y, x)
         cell.razeWallAtMod(1,0)
 
-
     def linkMaze(self):
         self.debugTracer = 0
-        startY = randint(0, self.HEIGHT-1)
-        startX = randint(0, self.WIDTH-1)
-        self.linkCell(startY, startX)
+        #startY = randint(0, self.HEIGHT-1)
+        #startX = randint(0, self.WIDTH-1)
+        startY = startX = 0
+        self.linkCells(startY, startX)
         self.createOpenings()
